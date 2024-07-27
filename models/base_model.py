@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """BaseModel class for Airbnb project."""
-from uuid import uuid4
-from datetime import datetime
+import uuid
+import datetime
 
 
 class BaseModel:
