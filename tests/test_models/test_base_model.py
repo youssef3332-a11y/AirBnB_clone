@@ -44,6 +44,12 @@ class TestBaseModel(unittest.TestCase):
         self.assertEqual(model_dict['__class__'], 'BaseModel')
         self.assertEqual(model_dict['created_at'], self.model.created_at.isoformat())
         self.assertEqual(model_dict['updated_at'], self.model.updated_at.isoformat())
+    def test_dict_to_class(self):
+        """test the task"""
+        model_dict = self.model.to_dict()
+        new = BaseModel(**model_dict)
+        self.assertIsInstance(new, BaseModel)
+        self.assertEqual(self.model.__dict__, new.__dict__)
 
 if __name__ == '__main__':
     unittest.main()
