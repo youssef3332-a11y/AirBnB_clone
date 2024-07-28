@@ -5,6 +5,10 @@ import time
 
 # Import the BaseModel class from the module where it's defined
 from models.base_model import BaseModel
+from models.engine.file_storage import FileStorage
+import json
+import os
+
 
 class TestBaseModel(unittest.TestCase):
     def setUp(self):
@@ -50,7 +54,10 @@ class TestBaseModel(unittest.TestCase):
         new = BaseModel(**model_dict)
         self.assertIsInstance(new, BaseModel)
         self.assertEqual(self.model.__dict__, new.__dict__)
-
+    
+    def test_save_to_json(self):
+        """replace the database"""
+        
 if __name__ == '__main__':
     unittest.main()
 

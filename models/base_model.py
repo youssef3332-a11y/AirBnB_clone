@@ -2,6 +2,7 @@
 """BaseModel class for Airbnb project."""
 import uuid
 import datetime
+import models
 
 
 class BaseModel:
@@ -18,6 +19,7 @@ class BaseModel:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.datetime.now()
             self.updated_at = datetime.datetime.now()
+        models.storage.new(self)
 
     def __str__(self):
         """__str__ override"""
@@ -28,6 +30,7 @@ class BaseModel:
     def save(self):
         """ update date"""
         self.updated_at = datetime.datetime.now()
+        models.storage.save()
 
     def to_dict(self):
         """to dictionary"""
