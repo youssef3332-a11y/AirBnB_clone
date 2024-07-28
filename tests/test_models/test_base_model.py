@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python4
 import unittest
 from datetime import datetime
 import time
@@ -13,7 +13,16 @@ import os
 class TestBaseModel(unittest.TestCase):
     def setUp(self):
         """Set up test case environment."""
+        self.storage = FileStorage(file_path="test_file.json")
+        self.storage._FileStorage__objects = {}
         self.model = BaseModel()
+    
+    def tearDown(self):
+        """Clean up after each test."""
+        try:
+            os.remove("test_file.json")
+        except FileNotFoundError:
+            pass
 
     def test_id(self):
         """Test that id is a string and has a UUID format."""
@@ -55,9 +64,86 @@ class TestBaseModel(unittest.TestCase):
         self.assertIsInstance(new, BaseModel)
         self.assertEqual(self.model.__dict__, new.__dict__)
     
-    def test_save_to_json(self):
-        """replace the database"""
+    def test_new_method(self):
+        """Test new method."""
+        # Add the base model to the storage
+        self.storage.new(self.base_model)
         
+        # Retrieve all objects from storage
+        all_objects = self.storage.all()
+        
+        # Check if the object is correctly stored
+        key = f"BaseModel.{self.base_model.id}"
+        self.assertIn(key, all_objects)
+        self.assertEqual(all_objects[key], self.base_model)
+
+    def test_all_method(self):
+        """Test all method."""
+        # Add the base model to the storage
+        self.storage.new(self.base_model)
+        
+        # Retrieve all objects from storage
+        all_objects = self.storage.all()
+        
+        # Check if the object is correctly stored
+        key = f"BaseModel.{self.base_model.id}"
+        self.assertIn(key, all_objects)
+        self.assertEqual(all_objects[key], self.base_model)
+
+    def test_save_method(self):
+        """Test save method."""
+        # Add dynamic attributes
+        self.base_model.name = "My_First_Model"
+        self.base_model.my_number = 89
+        
+        # Add the base model to the storage
+        self.storage.new(self.base_model)
+        
+        # Save the storage to a file
+        self.storage.save()
+        
+        # Check if the file was created
+        self.assertTrue(os.path.exists("test_file.json"))
+        
+        # Load the JSON data
+        with open("test_file.json", "r") as f:
+            data = json.load(f)
+        
+        # Check the stored data
+        key = f"BaseModel.{self.base_model.id}"
+        self.assertIn(key, data)
+        self.assertEqual(data[key]['name'], "My_First_Model")
+        self.assertEqual(data[key]['my_number'], 89)
+        self.assertEqual(data[key]['__class__'], 'BaseModel')
+
+    def test_reload_method(self):
+        """Test reload method."""
+        # Add dynamic attributes
+        self.base_model.name = "My_First_Model"
+        self.base_model.my_number = 89
+        
+        # Add the base model to the storage
+        self.storage.new(self.base_model)
+        
+        # Save the storage to a file
+        self.storage.save()
+        
+        # Create a new FileStorage instance to simulate reloading
+        new_storage = FileStorage(file_path="test_file.json")
+        new_storage.reload()
+        
+        # Retrieve all objects from the new storage
+        all_objects = new_storage.all()
+        
+        # Check if the object is correctly reloaded
+        key = f"BaseModel.{self.base_model.id}"
+        self.assertIn(key, all_objects)
+        reloaded_model = all_objects[key]
+        self.assertEqual(reloaded_model.name, "My_First_Model")
+        self.assertEqual(reloaded_model.my_number, 89)
+        self.assertEqual(reloaded_model.id, self.base_model.id)
+        self.assertEqual(reloaded_model.__class__.__name__, 'BaseModel')
+
 if __name__ == '__main__':
     unittest.main()
 
